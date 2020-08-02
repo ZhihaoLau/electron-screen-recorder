@@ -1,4 +1,5 @@
 const {app, BrowserWindow, ipcMain} = require('electron')
+const {download} = require("electron-dl");
 
 let mainWindow
 let pickerDialog
@@ -18,6 +19,7 @@ app.on('ready', () => {
     width: 680
   })
   mainWindow.loadURL('file://' + __dirname + '/index.html')
+
   pickerDialog.loadURL('file://' + __dirname + '/picker.html')
 });
 

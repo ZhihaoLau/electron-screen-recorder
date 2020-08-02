@@ -1,5 +1,8 @@
 const {desktopCapturer, ipcRenderer, remote} = require('electron')
 const domify = require('domify')
+const ffmpeg = require('@lozio/ffmpeg.js');
+const path  = require('path')
+const fs = require('fs')
 
 let localStream
 let microAudioStream
@@ -19,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelector('#record-stop').addEventListener('click', stopRecording)
   document.querySelector('#play-button').addEventListener('click', play)
   document.querySelector('#download-button').addEventListener('click', download)
+  document.querySelector('#download-gif').addEventListener('click', downloadGif)
 })
 
 const playVideo = () => {
@@ -37,6 +41,7 @@ const disableButtons = () => {
   document.querySelector('#record-stop').hidden = false
   document.querySelector('#play-button').hidden = true
   document.querySelector('#download-button').hidden = true
+  document.querySelector('#download-gif').hidden = true
 }
 
 const enableButtons = () => {
@@ -46,6 +51,7 @@ const enableButtons = () => {
   document.querySelector('#record-stop').hidden = true
   document.querySelector('#play-button').hidden = true
   document.querySelector('#download-button').hidden = true
+  document.querySelector('#download-gif').hidden = true
 }
 
 const microAudioCheck = () => {
@@ -123,6 +129,7 @@ const stopRecording = () => {
   enableButtons()
   document.querySelector('#play-button').hidden = false
   document.querySelector('#download-button').hidden = false
+  document.querySelector('#download-gif').hidden = false
   recorder.stop()
   localStream.getVideoTracks()[0].stop()
 }
@@ -149,6 +156,28 @@ const download = () => {
     document.body.removeChild(a)
     window.URL.revokeObjectURL(url)
   }, 100)
+}
+
+const downloadGif = () => {
+  const blob = new Blob(recordedChunks, {type: 'video/webm'})
+  new Response(blob).arrayBuffer().then(buff => {
+    const buffer = Buffer.from(buff);
+    const webmFile = 'sample.webm';
+    fs.writeFileSync(webmFile, buffer);
+    const inputFile = path.resolve(webmFile);
+    const testData = new Uint8Array(fs.readFileSync(inputFile))
+    const result = ffmpeg({
+        MEMFS: [{name: webmFile, data: testData}],
+        // arguments: ["-i", "sample.mov", "-c:v", "libvpx", "-an", "out.webm"],
+        arguments: ["-i", webmFile, "-vf", "scale=320:-1:flags=lanczos", "-loop", "0", "output.gif"],
+    })
+    const out = result.MEMFS[0]
+    fs.writeFileSync(out.name, Buffer(out.data));
+
+    alert('gif saved!') 
+  })
+
+  return;
 }
 
 const getMediaStream = (stream) => {

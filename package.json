@@ -12,18 +12,21 @@
   ],
   "scripts": {
     "build": "electron-packager ./src ElectronScreenRecorder  --platform=darwin --arch=x64 --version=0.36.0 --icon=src/Icon.icns",
-    "start": "electron ."
+    "start": "ELECTRON_ENABLE_LOGGING=1 electron ."
   },
   "main": "src/main.js",
   "bin": {
     "electron-screen-recorder": "./launch.js"
   },
   "devDependencies": {
-    "electron-packager": "^10.1.0",
+    "electron-packager": "^15.0.0",
     "electron-prebuilt": "^1.4.13"
   },
   "dependencies": {
+    "@lozio/ffmpeg.js": "^4.3.0",
     "domify": "^1.4.0",
-    "electron": "1.7.9"
+    "electron": "9.1.2",
+    "electron-dl": "1.14.0",
+    "gifify": "^2.4.3"
   }
 }
